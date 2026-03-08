@@ -1,0 +1,232 @@
+{
+    "meta": {
+      "version": "1.0.0",
+      "last_updated": "2025-01-01",
+      "source": "CMS Physician Fee Schedule / CPT Editorial Panel",
+      "scope": "Baseline rules only. Payer-specific overrides live in vectordb (BCBS PDF).",
+      "logic_types": {
+        "hard_stop": "Do not submit. Claim will be denied. Requires correction before billing.",
+        "documentation_gap": "Submission allowed but flag for human review. Add 'Citations Needed' note.",
+        "modifier_required": "Claim will deny without correct modifier. Auto-apply if condition is met.",
+        "informational": "Low-risk note for coder awareness. No action required."
+      }
+    },
+    "cpt_codes": {
+      "99396": {
+        "description": "Preventive medicine visit, established patient, age 40-64",
+        "category": "preventive_medicine",
+        "eligibility": {
+          "age_min": 40,
+          "age_max": 64,
+          "gender": "any",
+          "patient_status": "established",
+          "frequency": "once_per_calendar_year"
+        },
+        "common_modifiers": [
+          {
+            "modifier": "25",
+            "description": "Significant, separately identifiable E&M service same day",
+            "condition": "A separate problem-oriented E&M service is documented and medically necessary on the same date as the preventive visit",
+            "required": false,
+            "auto_apply": false
+          },
+          {
+            "modifier": "59",
+            "description": "Distinct procedural service",
+            "condition": "A procedure or service is distinct and independent from other services performed on the same day, specifically when depression screening (96127) is billed more than once",
+            "required": true,
+            "auto_apply": true
+          }
+        ],
+        "denial_triggers": [
+          {
+            "trigger": "Billed more than once per calendar year for same patient",
+            "severity": "high",
+            "logic_type": "hard_stop",
+            "action": "Remove duplicate. Only one preventive visit per year is reimbursable under CMS."
+          },
+          {
+            "trigger": "Patient age does not fall within 40-64 range",
+            "severity": "high",
+            "logic_type": "hard_stop",
+            "action": "Use 99395 for ages 18-39 or 99397 for ages 65+. Verify patient DOB from FHIR demographics."
+          },
+          {
+            "trigger": "Patient listed as new patient — should be 99386 for new patients age 40-64",
+            "severity": "high",
+            "logic_type": "hard_stop",
+            "action": "Confirm established vs new patient status from FHIR encounter history."
+          },
+          {
+            "trigger": "Documentation does not reflect comprehensive preventive exam",
+            "severity": "medium",
+            "logic_type": "documentation_gap",
+            "action": "Flag for human review. Clinical note must evidence comprehensive history, physical exam, and counseling/anticipatory guidance."
+          },
+          {
+            "trigger": "Depression screening (96127) billed twice on same date without modifier 59",
+            "severity": "high",
+            "logic_type": "modifier_required",
+            "action": "Auto-apply modifier 59 to second 96127 instance. Cite BCBS Modifier 59 Policy if payer is BCBS."
+          }
+        ],
+        "requires_prior_auth": false,
+        "commonly_billed_with": ["90686", "90714", "96127", "99420"],
+        "notes": "Primary code for Tamera's encounter. Age 42, established patient, BCBS. Expect 96127 x2 — modifier 59 required."
+      },
+  
+      "90686": {
+        "description": "Influenza virus vaccine, quadrivalent (IIV4), preservative free, 0.5mL dosage, for intramuscular use",
+        "category": "immunization",
+        "eligibility": {
+          "age_min": 3,
+          "age_max": null,
+          "gender": "any",
+          "patient_status": "any",
+          "frequency": "once_per_influenza_season"
+        },
+        "common_modifiers": [
+          {
+            "modifier": "SB",
+            "description": "Nurse midwife / alternate provider — rarely needed",
+            "condition": "Vaccine administered by non-physician provider in specific payer contexts",
+            "required": false,
+            "auto_apply": false
+          }
+        ],
+        "denial_triggers": [
+          {
+            "trigger": "Vaccine administration code (90471) not billed alongside 90686",
+            "severity": "medium",
+            "logic_type": "documentation_gap",
+            "action": "Flag for human review. 90471 (first vaccine admin) must accompany 90686. Without it, reimbursement for administration is lost."
+          },
+          {
+            "trigger": "Billed more than once in same influenza season",
+            "severity": "high",
+            "logic_type": "hard_stop",
+            "action": "Remove duplicate. One influenza vaccine per season unless documented medical necessity."
+          },
+          {
+            "trigger": "Wrong vaccine code for patient age or dosage",
+            "severity": "high",
+            "logic_type": "hard_stop",
+            "action": "Verify dosage from clinical note. 90685 is for 0.5mL preservative-free alternative. Confirm exact product administered."
+          }
+        ],
+        "requires_prior_auth": false,
+        "commonly_billed_with": ["90471", "99396"],
+        "notes": "Tamera received influenza seasonal injectable preservative free. Maps to 90686. Must pair with 90471."
+      },
+  
+      "90714": {
+        "description": "Tetanus and diphtheria toxoids (Td), preservative free, when administered to individuals 7 years or older, for intramuscular use",
+        "category": "immunization",
+        "eligibility": {
+          "age_min": 7,
+          "age_max": null,
+          "gender": "any",
+          "patient_status": "any",
+          "frequency": "every_10_years"
+        },
+        "common_modifiers": [],
+        "denial_triggers": [
+          {
+            "trigger": "Td booster administered less than 10 years after prior Td or Tdap",
+            "severity": "high",
+            "logic_type": "hard_stop",
+            "action": "Verify immunization history in FHIR immunization resource. CMS denies boosters given too early unless wound prophylaxis is documented."
+          },
+          {
+            "trigger": "Vaccine administration code (90472) not billed for second vaccine on same date",
+            "severity": "medium",
+            "logic_type": "documentation_gap",
+            "action": "Flag for human review. When 90714 is billed same day as 90686, use 90472 (each additional vaccine admin) not 90471 again."
+          },
+          {
+            "trigger": "Confused with 90715 (Tdap) — different indication and code",
+            "severity": "high",
+            "logic_type": "hard_stop",
+            "action": "Confirm from clinical note: Td (no pertussis) = 90714. Tdap (with pertussis) = 90715. Tamera's note says td (adult) — maps to 90714."
+          }
+        ],
+        "requires_prior_auth": false,
+        "commonly_billed_with": ["90472", "90686", "99396"],
+        "notes": "Tamera received td (adult) 5 lf tetanus toxoid preservative free. Maps to 90714. Must use 90472 since 90686 also billed same date."
+      },
+  
+      "99420": {
+        "description": "Administration and interpretation of health risk assessment instrument",
+        "category": "preventive_assessment",
+        "eligibility": {
+          "age_min": 0,
+          "age_max": null,
+          "gender": "any",
+          "patient_status": "any",
+          "frequency": "once_per_encounter"
+        },
+        "common_modifiers": [],
+        "denial_triggers": [
+          {
+            "trigger": "Not separately reimbursable by all payers — bundled into 99396 by some payers",
+            "severity": "high",
+            "logic_type": "hard_stop",
+            "action": "Check payer-specific policy before billing. BCBS may bundle 99420 into the preventive visit. Query vectordb for BCBS preventive bundling policy."
+          },
+          {
+            "trigger": "No documented health risk assessment instrument in clinical note",
+            "severity": "high",
+            "logic_type": "documentation_gap",
+            "action": "Flag for human review. Must reference a validated tool (e.g., PHQ-2, health risk appraisal). Tamera's note references PHQ-2 — sufficient if linked."
+          }
+        ],
+        "requires_prior_auth": false,
+        "commonly_billed_with": ["99396", "96127"],
+        "notes": "Tamera's note documents PHQ-2 administration. Supports 99420 but verify BCBS bundling policy via vectordb before submitting."
+      },
+  
+      "96127": {
+        "description": "Brief emotional/behavioral assessment with scoring and documentation",
+        "category": "behavioral_health_screening",
+        "eligibility": {
+          "age_min": 0,
+          "age_max": null,
+          "gender": "any",
+          "patient_status": "any",
+          "frequency": "up_to_2x_per_encounter_with_modifier"
+        },
+        "common_modifiers": [
+          {
+            "modifier": "59",
+            "description": "Distinct procedural service",
+            "condition": "96127 is billed more than once on the same date of service",
+            "required": true,
+            "auto_apply": true
+          }
+        ],
+        "denial_triggers": [
+          {
+            "trigger": "Billed more than once on same date without modifier 59 on second unit",
+            "severity": "high",
+            "logic_type": "modifier_required",
+            "action": "Auto-apply modifier 59 to second instance of 96127. Tamera's note documents depression screening x2 — this trigger is expected to fire."
+          },
+          {
+            "trigger": "No scoring documentation in clinical note",
+            "severity": "medium",
+            "logic_type": "documentation_gap",
+            "action": "Flag for human review. PHQ-2 score must be recorded. Tamera's note lists PHQ-2 [reported] — verify score is captured."
+          },
+          {
+            "trigger": "Billed without a corresponding preventive or E&M code",
+            "severity": "medium",
+            "logic_type": "documentation_gap",
+            "action": "96127 is typically an add-on to a primary E&M or preventive visit. Confirm 99396 is present on the same claim."
+          }
+        ],
+        "requires_prior_auth": false,
+        "commonly_billed_with": ["99396", "99420"],
+        "notes": "Key code for the Modifier 59 demo. Tamera has depression screening x2 on same date. Second instance requires modifier 59. This is the centerpiece denial predictor scenario."
+      }
+    }
+  }

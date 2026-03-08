@@ -17,6 +17,7 @@ switch (env) {
     break;
   default:
     allowedHosts.push("localhost");
+    allowedHosts.push("wailsome-timesaving-gauge.ngrok-free.dev");
 }
 
 const app = createMcpExpressApp({
@@ -24,7 +25,7 @@ const app = createMcpExpressApp({
   allowedHosts,
 });
 
-const port = process.env["PORT"] || 5000;
+const port = process.env["PORT"] || 5001;
 
 app.use(cors());
 
