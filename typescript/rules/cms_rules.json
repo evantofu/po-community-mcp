@@ -347,6 +347,143 @@
         "99396"
       ],
       "notes": "Correct code for DAST-10 substance abuse screening 15-30 min. Distinct from 96127 (brief behavioral assessment). Both can appear on the same claim when both screenings are documented."
+    },
+    "G2211": {
+      "description": "Visit complexity inherent to evaluation and management associated with medical care services that serve as the continuing focal point for all needed health care services",
+      "category": "em_complexity_addon",
+      "eligibility": {
+        "age_min": 0,
+        "age_max": null,
+        "gender": "any",
+        "patient_status": "established",
+        "frequency": "once_per_encounter"
+      },
+      "common_modifiers": [],
+      "denial_triggers": [
+        {
+          "trigger": "Billed without a base E/M code 99202-99215 on the same claim",
+          "severity": "high",
+          "logic_type": "hard_stop",
+          "action": "G2211 is an add-on to office/outpatient E/M only. It cannot be billed alone. Confirm 99202-99215 is present on the same claim."
+        },
+        {
+          "trigger": "Billed with a preventive visit code (99381-99397) or AWV code (G0438/G0439)",
+          "severity": "high",
+          "logic_type": "hard_stop",
+          "action": "G2211 is not payable with preventive medicine codes or Annual Wellness Visit codes. Remove G2211 or reclassify the visit."
+        },
+        {
+          "trigger": "Clinical note does not document ongoing management of a chronic condition as the primary focus",
+          "severity": "high",
+          "logic_type": "documentation_gap",
+          "action": "Flag for human review. Note must explicitly support longitudinal, ongoing management of a serious or complex chronic condition. Look for language like 'ongoing management', 'longitudinal care relationship', 'chronic disease management', or 'long-term treatment plan'."
+        },
+        {
+          "trigger": "Billed for an acute, episodic visit with no chronic condition management",
+          "severity": "high",
+          "logic_type": "hard_stop",
+          "action": "G2211 is not appropriate for acute episodic visits. It is only payable when the physician serves as the continuing focal point for the patient's overall care."
+        }
+      ],
+      "requires_prior_auth": false,
+      "commonly_billed_with": [
+        "99214",
+        "99215",
+        "99213"
+      ],
+      "notes": "CMS add-on code effective 2024. Pays ~$16 additional. Requires the visit to involve ongoing management of a chronic condition where the provider is the continuing focal point. Commonly missed by AI coding agents. Trigger phrases in notes: 'ongoing management', 'longitudinal care', 'chronic disease management', 'long-term treatment plan'."
+    },
+    "99213": {
+      "description": "Office or other outpatient visit, established patient, low to moderate complexity",
+      "category": "office_visit",
+      "eligibility": {
+        "age_min": 0,
+        "age_max": null,
+        "gender": "any",
+        "patient_status": "established",
+        "frequency": "once_per_encounter_per_problem"
+      },
+      "common_modifiers": [
+        {
+          "modifier": "25",
+          "description": "Significant, separately identifiable E/M service same day as preventive visit",
+          "condition": "A separate acute or problem-focused E/M is performed on the same day as a preventive visit (99381-99397). The acute problem must be separately documented, evaluated, and managed.",
+          "required": true,
+          "auto_apply": false
+        }
+      ],
+      "denial_triggers": [
+        {
+          "trigger": "Billed on same date as preventive visit (99381-99397) without modifier 25",
+          "severity": "high",
+          "logic_type": "modifier_required",
+          "action": "Add modifier 25 to 99213. Without modifier 25, the claim will bundle into the preventive visit and deny. Cite CMS modifier 25 policy."
+        },
+        {
+          "trigger": "Acute problem not separately documented from preventive visit components",
+          "severity": "high",
+          "logic_type": "documentation_gap",
+          "action": "Flag for human review. The acute problem must be separately identified, examined, and managed in the note. A brief mention is insufficient."
+        }
+      ],
+      "requires_prior_auth": false,
+      "commonly_billed_with": [
+        "99393",
+        "99394",
+        "99395",
+        "99396",
+        "G2211",
+        "90471"
+      ],
+      "notes": "Low-to-moderate complexity office visit. Used for mild acute problems (croup, URI, minor infection) when billed same-day as a preventive visit. Modifier 25 is REQUIRED in that context."
+    },
+    "99214": {
+      "description": "Office or other outpatient visit, established patient, moderate complexity",
+      "category": "office_visit",
+      "eligibility": {
+        "age_min": 0,
+        "age_max": null,
+        "gender": "any",
+        "patient_status": "established",
+        "frequency": "once_per_encounter"
+      },
+      "common_modifiers": [
+        {
+          "modifier": "25",
+          "description": "Significant, separately identifiable E/M service same day as preventive visit",
+          "condition": "A separate acute or problem-focused E/M is performed on the same day as a preventive visit",
+          "required": true,
+          "auto_apply": false
+        }
+      ],
+      "denial_triggers": [
+        {
+          "trigger": "MDM level does not support moderate complexity",
+          "severity": "high",
+          "logic_type": "documentation_gap",
+          "action": "Flag for human review. 99214 requires MODERATE MDM: 2+ chronic conditions with exacerbation, or independent data interpretation, plus prescription drug management or other moderate-risk decision."
+        },
+        {
+          "trigger": "Billed on same date as preventive visit without modifier 25",
+          "severity": "high",
+          "logic_type": "modifier_required",
+          "action": "Add modifier 25 to 99214 when billed same-day as a preventive visit."
+        },
+        {
+          "trigger": "G2211 not billed when note documents ongoing chronic condition management as primary focus",
+          "severity": "medium",
+          "logic_type": "informational",
+          "action": "Consider adding G2211 add-on if note documents ongoing management of chronic conditions as the primary focus of the visit and provider serves as continuing focal point for all care."
+        }
+      ],
+      "requires_prior_auth": false,
+      "commonly_billed_with": [
+        "G2211",
+        "99213",
+        "90471",
+        "96127"
+      ],
+      "notes": "Moderate complexity office visit. The 99214 + G2211 combination is the standard billing for established patients with chronic condition management (e.g. T2DM + HTN) where the provider is the continuing focal point."
     }
   }
 }
