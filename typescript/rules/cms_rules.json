@@ -1,9 +1,9 @@
 {
   "meta": {
-    "version": "1.0.0",
-    "last_updated": "2025-01-01",
+    "version": "1.1.0",
+    "last_updated": "2025-04-24",
     "source": "CMS Physician Fee Schedule / CPT Editorial Panel",
-    "scope": "Baseline rules only. Payer-specific overrides live in vectordb (BCBS PDF).",
+    "scope": "Baseline rules plus full 99391-99397 range, G0438, G0439 AWV codes. Payer-specific evidence entries for Medicare and BCBS on all codes.",
     "logic_types": {
       "hard_stop": "Do not submit. Claim will be denied. Requires correction before billing.",
       "documentation_gap": "Submission allowed but flag for human review. Add 'Citations Needed' note.",
@@ -77,6 +77,19 @@
         "96127",
         "99420"
       ],
+      "payer_evidence": {
+        "medicare": {
+          "coverage": "not_covered",
+          "note": "Medicare does not cover CPT preventive medicine codes 99381-99397. For Medicare patients, use G0438/G0439 for Annual Wellness Visit instead.",
+          "pdf_reference": "Medicare Benefit Policy Manual, Chapter 15, Section 280"
+        },
+        "bcbs": {
+          "coverage": "covered",
+          "cost_share": "no_copay_in_network_preventive",
+          "note": "BCBS covers one preventive visit per calendar year at no cost-sharing when billed as in-network preventive care. 96127 is separately reimbursable. 99420 may bundle into preventive visit depending on plan \u2014 verify via BCBS provider portal. Modifier 59 required on second 96127 unit.",
+          "pdf_reference": "BCBS Preventive Care Coverage Policy \u2014 Adult Preventive Services; BCBS Modifier 59 Billing Guidelines"
+        }
+      },
       "notes": "Primary code for Tamera's encounter. Age 42, established patient, BCBS. Expect 96127 x2 \u2014 modifier 59 required."
     },
     "90686": {
@@ -123,7 +136,20 @@
         "90471",
         "99396"
       ],
-      "notes": "Tamera received influenza seasonal injectable preservative free. Maps to 90686. Must pair with 90471."
+      "notes": "Tamera received influenza seasonal injectable preservative free. Maps to 90686. Must pair with 90471.",
+      "payer_evidence": {
+        "medicare": {
+          "coverage": "covered",
+          "note": "Medicare Part B covers influenza, pneumococcal, and hepatitis B vaccines and their administration codes at 100% with no cost-sharing. Other vaccines may require Part D. Verify specific vaccine coverage under Part B vs Part D before billing.",
+          "pdf_reference": "Medicare Benefit Policy Manual, Chapter 15, Section 50; MLN Matters \u2014 Preventive Vaccines"
+        },
+        "bcbs": {
+          "coverage": "covered",
+          "cost_share": "no_copay_preventive",
+          "note": "BCBS covers ACIP-recommended vaccines and administration codes as preventive services with no cost-sharing when in-network. Administration code (90471 for first, 90472 for each additional) must accompany vaccine product code on same claim.",
+          "pdf_reference": "BCBS Preventive Care Coverage Policy \u2014 Immunizations; BCBS Vaccine Administration Billing Guidelines"
+        }
+      }
     },
     "90714": {
       "description": "Tetanus and diphtheria toxoids (Td), preservative free, when administered to individuals 7 years or older, for intramuscular use",
@@ -162,7 +188,20 @@
         "90686",
         "99396"
       ],
-      "notes": "Tamera received td (adult) 5 lf tetanus toxoid preservative free. Maps to 90714. Must use 90472 since 90686 also billed same date."
+      "notes": "Tamera received td (adult) 5 lf tetanus toxoid preservative free. Maps to 90714. Must use 90472 since 90686 also billed same date.",
+      "payer_evidence": {
+        "medicare": {
+          "coverage": "covered",
+          "note": "Medicare Part B covers influenza, pneumococcal, and hepatitis B vaccines and their administration codes at 100% with no cost-sharing. Other vaccines may require Part D. Verify specific vaccine coverage under Part B vs Part D before billing.",
+          "pdf_reference": "Medicare Benefit Policy Manual, Chapter 15, Section 50; MLN Matters \u2014 Preventive Vaccines"
+        },
+        "bcbs": {
+          "coverage": "covered",
+          "cost_share": "no_copay_preventive",
+          "note": "BCBS covers ACIP-recommended vaccines and administration codes as preventive services with no cost-sharing when in-network. Administration code (90471 for first, 90472 for each additional) must accompany vaccine product code on same claim.",
+          "pdf_reference": "BCBS Preventive Care Coverage Policy \u2014 Immunizations; BCBS Vaccine Administration Billing Guidelines"
+        }
+      }
     },
     "99420": {
       "description": "Administration and interpretation of health risk assessment instrument",
@@ -194,7 +233,19 @@
         "99396",
         "96127"
       ],
-      "notes": "Tamera's note documents PHQ-2 administration. Supports 99420 but verify BCBS bundling policy via vectordb before submitting."
+      "notes": "Tamera's note documents PHQ-2 administration. Supports 99420 but verify BCBS bundling policy via vectordb before submitting.",
+      "payer_evidence": {
+        "medicare": {
+          "coverage": "plan_dependent",
+          "note": "99420 is not a standard Medicare preventive benefit code. Medicare uses specific HCPCS codes for health risk assessments in AWV context. Billing 99420 to Medicare may deny \u2014 verify plan policy. In AWV context, HRA is bundled into G0438/G0439.",
+          "pdf_reference": "Medicare Benefit Policy Manual, Chapter 15; CMS AWV requirements \u2014 HRA bundled into G0438/G0439"
+        },
+        "bcbs": {
+          "coverage": "plan_dependent",
+          "note": "BCBS coverage of 99420 varies by plan. Some plans bundle it into the preventive visit code (99395-99397); others allow separate billing. Query BCBS provider portal or call provider relations before submitting. PHQ-2 administration is sufficient documentation.",
+          "pdf_reference": "BCBS Preventive Care Coverage Policy \u2014 verify current plan bulletin for 99420 bundling rules"
+        }
+      }
     },
     "96127": {
       "description": "Brief emotional/behavioral assessment with scoring and documentation",
@@ -240,6 +291,18 @@
         "99396",
         "99420"
       ],
+      "payer_evidence": {
+        "medicare": {
+          "coverage": "covered",
+          "note": "Medicare covers 96127 as a separately billable service alongside E&M and AWV visits. No prior authorization required. Modifier 59 required when billed more than once on same date.",
+          "pdf_reference": "Medicare Claims Processing Manual, Chapter 12; CMS NCCI Edits \u2014 Modifier 59 Policy"
+        },
+        "bcbs": {
+          "coverage": "covered",
+          "note": "BCBS covers 96127 as a separately reimbursable behavioral health screening. When billed twice on the same date, modifier 59 is required on the second unit. BCBS follows NCCI bundling edits.",
+          "pdf_reference": "BCBS Behavioral Health Coding Guidelines; BCBS Modifier 59 Billing Guidelines"
+        }
+      },
       "notes": "Key code for the Modifier 59 demo. Tamera has depression screening x2 on same date. Second instance requires modifier 59. This is the centerpiece denial predictor scenario."
     },
     "90471": {
@@ -274,7 +337,19 @@
         "90472",
         "99396"
       ],
-      "notes": "First vaccine administration code. Always paired with the vaccine product code (e.g. 90686). Use 90472 for each additional vaccine on the same date."
+      "notes": "First vaccine administration code. Always paired with the vaccine product code (e.g. 90686). Use 90472 for each additional vaccine on the same date.",
+      "payer_evidence": {
+        "medicare": {
+          "coverage": "covered",
+          "note": "Medicare covers vaccine administration codes (90471, 90472) when paired with a covered Part B vaccine. Administration is covered at 100% for preventive vaccines. Bill 90471 for first vaccine, 90472 for each additional on same date.",
+          "pdf_reference": "Medicare Claims Processing Manual, Chapter 18; MLN Matters \u2014 Vaccine Administration"
+        },
+        "bcbs": {
+          "coverage": "covered",
+          "note": "BCBS covers 90471 (first vaccine admin) and 90472 (each additional) when paired with corresponding vaccine product codes. Both must appear on same claim. No separate prior auth required for ACIP-recommended vaccines.",
+          "pdf_reference": "BCBS Preventive Care Coverage Policy \u2014 Immunizations; BCBS Vaccine Administration Billing Guidelines"
+        }
+      }
     },
     "90472": {
       "description": "Immunization administration; each additional vaccine (single or combination vaccine/toxoid)",
@@ -308,7 +383,19 @@
         "90714",
         "99396"
       ],
-      "notes": "Each additional vaccine administration beyond the first. Bill once per additional vaccine product code."
+      "notes": "Each additional vaccine administration beyond the first. Bill once per additional vaccine product code.",
+      "payer_evidence": {
+        "medicare": {
+          "coverage": "covered",
+          "note": "Medicare covers vaccine administration codes (90471, 90472) when paired with a covered Part B vaccine. Administration is covered at 100% for preventive vaccines. Bill 90471 for first vaccine, 90472 for each additional on same date.",
+          "pdf_reference": "Medicare Claims Processing Manual, Chapter 18; MLN Matters \u2014 Vaccine Administration"
+        },
+        "bcbs": {
+          "coverage": "covered",
+          "note": "BCBS covers 90471 (first vaccine admin) and 90472 (each additional) when paired with corresponding vaccine product codes. Both must appear on same claim. No separate prior auth required for ACIP-recommended vaccines.",
+          "pdf_reference": "BCBS Preventive Care Coverage Policy \u2014 Immunizations; BCBS Vaccine Administration Billing Guidelines"
+        }
+      }
     },
     "99408": {
       "description": "Alcohol and/or substance abuse structured screening and brief intervention, 15-30 minutes",
@@ -346,6 +433,18 @@
         "96127",
         "99396"
       ],
+      "payer_evidence": {
+        "medicare": {
+          "coverage": "covered",
+          "note": "Medicare covers alcohol misuse screening and counseling (G0442/G0443) which overlap with 99408. Verify whether the specific service maps to 99408 or to a Medicare-specific HCPCS code. 99408 is generally covered by Medicare when a validated instrument (AUDIT, DAST) is documented and 15-30 minutes is noted.",
+          "pdf_reference": "Medicare Preventive Services \u2014 Alcohol Misuse Screening; CMS HCPCS G0442/G0443 guidance"
+        },
+        "bcbs": {
+          "coverage": "covered",
+          "note": "BCBS covers 99408 as a preventive behavioral health service. Must document validated screening instrument (AUDIT, DAST-10, CAGE) and time spent (15-30 min). Cannot be billed for the same instrument as 99420 on the same claim.",
+          "pdf_reference": "BCBS Behavioral Health Coding Guidelines; BCBS Preventive Care Coverage Policy"
+        }
+      },
       "notes": "Correct code for DAST-10 substance abuse screening 15-30 min. Distinct from 96127 (brief behavioral assessment). Both can appear on the same claim when both screenings are documented."
     },
     "G2211": {
@@ -391,6 +490,18 @@
         "99215",
         "99213"
       ],
+      "payer_evidence": {
+        "medicare": {
+          "coverage": "covered",
+          "note": "G2211 is a Medicare/CMS code effective January 2024. Covered when billed with 99202-99215. Not payable with preventive (99381-99397) or AWV (G0438/G0439) codes. Payment rate approximately $16.58 in 2024 PFS. Some Medicare Advantage plans may have additional restrictions \u2014 verify plan policy.",
+          "pdf_reference": "CMS 2024 Physician Fee Schedule Final Rule; MLN Matters MM13473 \u2014 G2211 Implementation"
+        },
+        "bcbs": {
+          "coverage": "plan_dependent",
+          "note": "BCBS coverage of G2211 varies by plan. Some BCBS plans cover G2211 effective 2024 following CMS, others may not yet recognize it. Verify with BCBS provider portal before billing. When covered, same documentation requirements as Medicare apply \u2014 ongoing chronic condition management as primary visit focus.",
+          "pdf_reference": "BCBS E&M Coding Policy 2024 Update \u2014 verify current plan bulletin"
+        }
+      },
       "notes": "CMS add-on code effective 2024. Pays ~$16 additional. Requires the visit to involve ongoing management of a chronic condition where the provider is the continuing focal point. Commonly missed by AI coding agents. Trigger phrases in notes: 'ongoing management', 'longitudinal care', 'chronic disease management', 'long-term treatment plan'."
     },
     "99213": {
@@ -435,7 +546,588 @@
         "G2211",
         "90471"
       ],
+      "payer_evidence": {
+        "medicare": {
+          "coverage": "covered",
+          "note": "Medicare covers 99213 for established patients. When billed same-day as a preventive visit, modifier 25 is required. Medicare applies NCCI bundling edits \u2014 separate E&M must be medically necessary and distinctly documented.",
+          "pdf_reference": "Medicare Claims Processing Manual, Chapter 12, Section 30.6.7; CMS Modifier 25 Policy"
+        },
+        "bcbs": {
+          "coverage": "covered",
+          "note": "BCBS covers 99213 for established patients. Modifier 25 required when billed same-day as a preventive visit. BCBS may audit same-day preventive + E&M claims \u2014 ensure acute problem is documented separately from preventive exam components.",
+          "pdf_reference": "BCBS E&M Coding and Documentation Guidelines; BCBS Modifier 25 Policy"
+        }
+      },
       "notes": "Low-to-moderate complexity office visit. Used for mild acute problems (croup, URI, minor infection) when billed same-day as a preventive visit. Modifier 25 is REQUIRED in that context."
+    },
+    "99391": {
+      "description": "Preventive medicine visit, new patient, infant age less than 1 year",
+      "category": "preventive_medicine",
+      "eligibility": {
+        "age_min": 0,
+        "age_max": 0,
+        "gender": "any",
+        "patient_status": "new",
+        "frequency": "once_per_calendar_year"
+      },
+      "common_modifiers": [
+        {
+          "modifier": "25",
+          "description": "Significant, separately identifiable E&M service same day",
+          "condition": "A separate problem-oriented E&M service is documented and medically necessary on the same date as the preventive visit",
+          "required": false,
+          "auto_apply": false
+        }
+      ],
+      "denial_triggers": [
+        {
+          "trigger": "Patient age is 1 year or older",
+          "severity": "high",
+          "logic_type": "hard_stop",
+          "action": "Use 99392 for ages 1-4, 99393 for ages 5-11. Verify patient DOB from FHIR demographics."
+        },
+        {
+          "trigger": "Patient listed as established patient \u2014 should be 99381 for established infant",
+          "severity": "high",
+          "logic_type": "hard_stop",
+          "action": "Confirm new vs established patient status from FHIR encounter history. New patient = no professional service in past 3 years from same group."
+        },
+        {
+          "trigger": "Billed more than once per calendar year for same patient",
+          "severity": "high",
+          "logic_type": "hard_stop",
+          "action": "Remove duplicate. Only one preventive visit per year is reimbursable."
+        },
+        {
+          "trigger": "Documentation does not reflect comprehensive preventive exam appropriate for age",
+          "severity": "medium",
+          "logic_type": "documentation_gap",
+          "action": "Flag for human review. Clinical note must evidence age-appropriate comprehensive history, physical exam, developmental surveillance, and anticipatory guidance."
+        }
+      ],
+      "requires_prior_auth": false,
+      "commonly_billed_with": [
+        "96127",
+        "90471",
+        "90686"
+      ],
+      "payer_evidence": {
+        "medicare": {
+          "coverage": "not_covered",
+          "note": "Medicare does not cover preventive medicine codes 99381-99397. Use G0438/G0439 for Medicare beneficiaries' annual wellness visits.",
+          "pdf_reference": "Medicare Benefit Policy Manual, Chapter 15, Section 280"
+        },
+        "bcbs": {
+          "coverage": "covered",
+          "note": "BCBS covers well-child visits per AAP Bright Futures schedule. Verify member plan for cost-sharing specifics.",
+          "pdf_reference": "BCBS Preventive Care Benefits Policy \u2014 Well Child Visits"
+        }
+      },
+      "notes": "New patient infant preventive visit. Age must be under 1 year. Not covered by Medicare \u2014 use AWV codes for Medicare beneficiaries."
+    },
+    "99392": {
+      "description": "Preventive medicine visit, new patient, age 1-4 years",
+      "category": "preventive_medicine",
+      "eligibility": {
+        "age_min": 1,
+        "age_max": 4,
+        "gender": "any",
+        "patient_status": "new",
+        "frequency": "once_per_calendar_year"
+      },
+      "common_modifiers": [
+        {
+          "modifier": "25",
+          "description": "Significant, separately identifiable E&M service same day",
+          "condition": "A separate problem-oriented E&M service is documented and medically necessary on the same date as the preventive visit",
+          "required": false,
+          "auto_apply": false
+        }
+      ],
+      "denial_triggers": [
+        {
+          "trigger": "Patient age is outside 1-4 range",
+          "severity": "high",
+          "logic_type": "hard_stop",
+          "action": "Use 99391 for infants under 1, 99393 for ages 5-11. Verify patient DOB from FHIR demographics."
+        },
+        {
+          "trigger": "Patient listed as established \u2014 should be 99382",
+          "severity": "high",
+          "logic_type": "hard_stop",
+          "action": "Confirm new vs established from FHIR encounter history."
+        },
+        {
+          "trigger": "Billed more than once per calendar year",
+          "severity": "high",
+          "logic_type": "hard_stop",
+          "action": "Remove duplicate. Only one preventive visit per year is reimbursable."
+        },
+        {
+          "trigger": "Documentation does not reflect comprehensive age-appropriate preventive exam",
+          "severity": "medium",
+          "logic_type": "documentation_gap",
+          "action": "Flag for human review. Must include developmental surveillance, immunization review, anticipatory guidance, and physical exam."
+        }
+      ],
+      "requires_prior_auth": false,
+      "commonly_billed_with": [
+        "96127",
+        "90471",
+        "90686"
+      ],
+      "payer_evidence": {
+        "medicare": {
+          "coverage": "not_covered",
+          "note": "Medicare does not cover 99381-99397. Patients this age are rarely Medicare beneficiaries.",
+          "pdf_reference": "Medicare Benefit Policy Manual, Chapter 15, Section 280"
+        },
+        "bcbs": {
+          "coverage": "covered",
+          "note": "BCBS covers well-child visits per AAP Bright Futures schedule.",
+          "pdf_reference": "BCBS Preventive Care Benefits Policy \u2014 Well Child Visits"
+        }
+      },
+      "notes": "New patient, toddler/preschool preventive visit. Age 1-4 years. Not covered by Medicare."
+    },
+    "99393": {
+      "description": "Preventive medicine visit, new patient, age 5-11 years",
+      "category": "preventive_medicine",
+      "eligibility": {
+        "age_min": 5,
+        "age_max": 11,
+        "gender": "any",
+        "patient_status": "new",
+        "frequency": "once_per_calendar_year"
+      },
+      "common_modifiers": [
+        {
+          "modifier": "25",
+          "description": "Significant, separately identifiable E&M service same day",
+          "condition": "Separate problem-oriented E&M documented and medically necessary on same date",
+          "required": false,
+          "auto_apply": false
+        }
+      ],
+      "denial_triggers": [
+        {
+          "trigger": "Patient age is outside 5-11 range",
+          "severity": "high",
+          "logic_type": "hard_stop",
+          "action": "Use 99392 for ages 1-4, 99394 for ages 12-17. Verify DOB from FHIR demographics."
+        },
+        {
+          "trigger": "Patient listed as established \u2014 should be 99383",
+          "severity": "high",
+          "logic_type": "hard_stop",
+          "action": "Confirm new vs established from FHIR encounter history."
+        },
+        {
+          "trigger": "Billed more than once per calendar year",
+          "severity": "high",
+          "logic_type": "hard_stop",
+          "action": "Remove duplicate. Only one preventive visit per year is reimbursable."
+        },
+        {
+          "trigger": "Documentation does not reflect comprehensive age-appropriate preventive exam",
+          "severity": "medium",
+          "logic_type": "documentation_gap",
+          "action": "Flag for human review. Must include vision/hearing screening, BMI assessment, immunization review, and anticipatory guidance."
+        }
+      ],
+      "requires_prior_auth": false,
+      "commonly_billed_with": [
+        "96127",
+        "90471",
+        "99213"
+      ],
+      "payer_evidence": {
+        "medicare": {
+          "coverage": "not_covered",
+          "note": "Medicare does not cover 99381-99397.",
+          "pdf_reference": "Medicare Benefit Policy Manual, Chapter 15, Section 280"
+        },
+        "bcbs": {
+          "coverage": "covered",
+          "note": "BCBS covers annual well-child exams per EPSDT and Bright Futures guidelines.",
+          "pdf_reference": "BCBS Preventive Care Benefits Policy \u2014 Well Child Visits"
+        }
+      },
+      "notes": "New patient, school-age preventive visit. Age 5-11. Not covered by Medicare."
+    },
+    "99394": {
+      "description": "Preventive medicine visit, new patient, age 12-17 years",
+      "category": "preventive_medicine",
+      "eligibility": {
+        "age_min": 12,
+        "age_max": 17,
+        "gender": "any",
+        "patient_status": "new",
+        "frequency": "once_per_calendar_year"
+      },
+      "common_modifiers": [
+        {
+          "modifier": "25",
+          "description": "Significant, separately identifiable E&M service same day",
+          "condition": "Separate problem-oriented E&M documented and medically necessary on same date",
+          "required": false,
+          "auto_apply": false
+        }
+      ],
+      "denial_triggers": [
+        {
+          "trigger": "Patient age is outside 12-17 range",
+          "severity": "high",
+          "logic_type": "hard_stop",
+          "action": "Use 99393 for ages 5-11, 99395 for ages 18-39. Verify DOB from FHIR demographics."
+        },
+        {
+          "trigger": "Patient listed as established \u2014 should be 99384",
+          "severity": "high",
+          "logic_type": "hard_stop",
+          "action": "Confirm new vs established from FHIR encounter history."
+        },
+        {
+          "trigger": "Billed more than once per calendar year",
+          "severity": "high",
+          "logic_type": "hard_stop",
+          "action": "Remove duplicate. Only one preventive visit per year is reimbursable."
+        },
+        {
+          "trigger": "Adolescent-specific screenings not documented (depression, substance use, reproductive health)",
+          "severity": "medium",
+          "logic_type": "documentation_gap",
+          "action": "Flag for human review. USPSTF recommends depression screening and substance use assessment for adolescents. Document or note not clinically indicated."
+        }
+      ],
+      "requires_prior_auth": false,
+      "commonly_billed_with": [
+        "96127",
+        "99408",
+        "90471"
+      ],
+      "payer_evidence": {
+        "medicare": {
+          "coverage": "not_covered",
+          "note": "Medicare does not cover 99381-99397. Adolescents are not typically Medicare beneficiaries.",
+          "pdf_reference": "Medicare Benefit Policy Manual, Chapter 15, Section 280"
+        },
+        "bcbs": {
+          "coverage": "covered",
+          "note": "BCBS covers adolescent preventive visits. Behavioral health screenings (96127, 99408) separately reimbursable when documented.",
+          "pdf_reference": "BCBS Preventive Care Benefits Policy \u2014 Adolescent Well Visits"
+        }
+      },
+      "notes": "New patient, adolescent preventive visit. Age 12-17. Depression screening and substance abuse screening commonly co-billed."
+    },
+    "99395": {
+      "description": "Preventive medicine visit, established patient, age 18-39",
+      "category": "preventive_medicine",
+      "eligibility": {
+        "age_min": 18,
+        "age_max": 39,
+        "gender": "any",
+        "patient_status": "established",
+        "frequency": "once_per_calendar_year"
+      },
+      "common_modifiers": [
+        {
+          "modifier": "25",
+          "description": "Significant, separately identifiable E&M service same day",
+          "condition": "A separate problem-oriented E&M service is documented and medically necessary on the same date as the preventive visit",
+          "required": false,
+          "auto_apply": false
+        },
+        {
+          "modifier": "59",
+          "description": "Distinct procedural service",
+          "condition": "96127 is billed more than once on the same date of service",
+          "required": true,
+          "auto_apply": true
+        }
+      ],
+      "denial_triggers": [
+        {
+          "trigger": "Patient age is outside 18-39 range",
+          "severity": "high",
+          "logic_type": "hard_stop",
+          "action": "Use 99394 for ages 12-17 or 99396 for ages 40-64. Verify patient DOB from FHIR demographics. Common error: billing 99396 for a 38-year-old patient."
+        },
+        {
+          "trigger": "Patient listed as new patient \u2014 should be 99385 for new patients age 18-39",
+          "severity": "high",
+          "logic_type": "hard_stop",
+          "action": "Confirm established vs new patient status from FHIR encounter history."
+        },
+        {
+          "trigger": "Billed more than once per calendar year for same patient",
+          "severity": "high",
+          "logic_type": "hard_stop",
+          "action": "Remove duplicate. Only one preventive visit per year is reimbursable under CMS."
+        },
+        {
+          "trigger": "Documentation does not reflect comprehensive preventive exam",
+          "severity": "medium",
+          "logic_type": "documentation_gap",
+          "action": "Flag for human review. Clinical note must evidence comprehensive history, physical exam, and counseling/anticipatory guidance."
+        },
+        {
+          "trigger": "Depression screening (96127) billed twice on same date without modifier 59",
+          "severity": "high",
+          "logic_type": "modifier_required",
+          "action": "Auto-apply modifier 59 to second 96127 instance."
+        }
+      ],
+      "requires_prior_auth": false,
+      "commonly_billed_with": [
+        "90686",
+        "96127",
+        "99420",
+        "90471"
+      ],
+      "payer_evidence": {
+        "medicare": {
+          "coverage": "not_covered",
+          "note": "Medicare does not cover 99381-99397. Patients age 18-39 are not typically Medicare beneficiaries unless disabled.",
+          "pdf_reference": "Medicare Benefit Policy Manual, Chapter 15, Section 280"
+        },
+        "bcbs": {
+          "coverage": "covered",
+          "note": "BCBS covers one annual preventive visit per calendar year. Age bracket must match claim. 96127 separately reimbursable; 99420 may bundle \u2014 verify plan.",
+          "pdf_reference": "BCBS Preventive Care Coverage Policy \u2014 Adult Preventive Services"
+        }
+      },
+      "notes": "Established patient, young adult preventive visit. Age 18-39. Identical logic to 99396 but different age bracket. Age boundary is the #1 coding error \u2014 always verify DOB."
+    },
+    "99397": {
+      "description": "Preventive medicine visit, established patient, age 65 and over",
+      "category": "preventive_medicine",
+      "eligibility": {
+        "age_min": 65,
+        "age_max": null,
+        "gender": "any",
+        "patient_status": "established",
+        "frequency": "once_per_calendar_year"
+      },
+      "common_modifiers": [
+        {
+          "modifier": "25",
+          "description": "Significant, separately identifiable E&M service same day",
+          "condition": "A separate problem-oriented E&M service is documented and medically necessary on the same date as the preventive visit",
+          "required": false,
+          "auto_apply": false
+        }
+      ],
+      "denial_triggers": [
+        {
+          "trigger": "Patient is a Medicare beneficiary \u2014 Medicare does not cover 99397",
+          "severity": "high",
+          "logic_type": "hard_stop",
+          "action": "Medicare does NOT cover 99381-99397 for any age. For Medicare patients age 65+, bill G0438 (initial AWV) or G0439 (subsequent AWV). Billing 99397 to Medicare will deny. Verify payer from FHIR coverage resource."
+        },
+        {
+          "trigger": "Patient age is under 65",
+          "severity": "high",
+          "logic_type": "hard_stop",
+          "action": "Use 99396 for established patients age 40-64. Verify DOB from FHIR demographics."
+        },
+        {
+          "trigger": "Patient listed as new patient \u2014 should be 99387 for new patients age 65+",
+          "severity": "high",
+          "logic_type": "hard_stop",
+          "action": "Confirm established vs new patient status from FHIR encounter history."
+        },
+        {
+          "trigger": "Billed more than once per calendar year for same patient",
+          "severity": "high",
+          "logic_type": "hard_stop",
+          "action": "Remove duplicate. Only one preventive visit per year is reimbursable."
+        },
+        {
+          "trigger": "Documentation does not reflect comprehensive preventive exam",
+          "severity": "medium",
+          "logic_type": "documentation_gap",
+          "action": "Flag for human review. For age 65+ must include functional status, fall risk assessment, cognitive screening, and medication reconciliation in addition to standard preventive components."
+        }
+      ],
+      "requires_prior_auth": false,
+      "commonly_billed_with": [
+        "96127",
+        "99420",
+        "90686"
+      ],
+      "payer_evidence": {
+        "medicare": {
+          "coverage": "not_covered",
+          "note": "CRITICAL: Medicare does not cover 99397. Use G0438/G0439 for Medicare AWV. Billing 99397 to Medicare Part B will result in denial. Advise patient of potential out-of-pocket liability if billing non-Medicare secondary.",
+          "pdf_reference": "Medicare Benefit Policy Manual, Chapter 15, Section 280; MLN Matters MM6740"
+        },
+        "bcbs": {
+          "coverage": "covered",
+          "note": "BCBS covers 99397 for non-Medicare members age 65+. Verify member is not Medicare primary before submitting.",
+          "pdf_reference": "BCBS Preventive Care Coverage Policy \u2014 Senior Preventive Services"
+        }
+      },
+      "notes": "Established patient, senior preventive visit. Age 65+. CRITICAL: Medicare patients must use G0438/G0439, not 99397. This is the most common senior coding error."
+    },
+    "G0438": {
+      "description": "Annual wellness visit (AWV), includes a personalized prevention plan of service (PPPS), initial visit",
+      "category": "medicare_annual_wellness",
+      "eligibility": {
+        "age_min": 0,
+        "age_max": null,
+        "gender": "any",
+        "patient_status": "established",
+        "frequency": "once_per_lifetime_then_G0439",
+        "payer_restriction": "medicare_only",
+        "medicare_eligibility": "Patient must have had Part B coverage for at least 12 months and not have received an Initial Preventive Physical Examination (IPPE/Welcome to Medicare, G0402) or previous AWV within the past 12 months"
+      },
+      "common_modifiers": [],
+      "denial_triggers": [
+        {
+          "trigger": "Patient has previously received G0438 \u2014 should bill G0439 for subsequent AWVs",
+          "severity": "high",
+          "logic_type": "hard_stop",
+          "action": "G0438 is the INITIAL AWV only. Once billed, all subsequent annual wellness visits must use G0439. Check claim history for prior G0438."
+        },
+        {
+          "trigger": "Payer is not Medicare \u2014 commercial payers do not recognize G0438",
+          "severity": "high",
+          "logic_type": "hard_stop",
+          "action": "G0438 is a Medicare-only HCPCS code. Commercial payers (BCBS, Aetna, UHC) do not cover G0438. For non-Medicare patients, use 99387 (new) or 99397 (established) per age bracket."
+        },
+        {
+          "trigger": "Patient has not had Medicare Part B for at least 12 months",
+          "severity": "high",
+          "logic_type": "hard_stop",
+          "action": "Verify Medicare Part B enrollment date from FHIR coverage resource. New Medicare enrollees must wait 12 months before G0438 is payable. In the first year, bill G0402 (Welcome to Medicare IPPE) instead."
+        },
+        {
+          "trigger": "AWV elements not fully documented \u2014 HRA, medical/family history, vitals, cognitive assessment, functional ability, written prevention plan",
+          "severity": "high",
+          "logic_type": "documentation_gap",
+          "action": "Flag for human review. G0438 requires ALL of: (1) Health Risk Assessment (HRA), (2) medical and family history review, (3) list of current providers and suppliers, (4) vitals including BMI, (5) cognitive impairment detection, (6) functional ability and safety screening, (7) establishment of personalized prevention plan. Missing any element risks denial."
+        },
+        {
+          "trigger": "Billed same day as a standard E&M (99201-99215) without modifier 25",
+          "severity": "high",
+          "logic_type": "modifier_required",
+          "action": "If a significant, separately identifiable E&M service is performed on the same day as the AWV, append modifier 25 to the E&M code. The AWV itself does not take modifier 25."
+        },
+        {
+          "trigger": "G2211 billed on same claim as G0438",
+          "severity": "high",
+          "logic_type": "hard_stop",
+          "action": "G2211 is not payable with AWV codes G0438 or G0439. Remove G2211 from the claim."
+        },
+        {
+          "trigger": "Billed more than once per 12-month period",
+          "severity": "high",
+          "logic_type": "hard_stop",
+          "action": "G0438 is a once-per-lifetime benefit. After initial AWV, use G0439 annually. Medicare will deny a second G0438."
+        }
+      ],
+      "requires_prior_auth": false,
+      "commonly_billed_with": [
+        "G0439",
+        "96127",
+        "99406",
+        "99408",
+        "G0444",
+        "G0446",
+        "G0447"
+      ],
+      "payer_evidence": {
+        "medicare": {
+          "coverage": "covered",
+          "cost_share": "no_copay_no_deductible",
+          "note": "G0438 is covered at 100% under Medicare Part B preventive services with no beneficiary cost-sharing. Patient must consent to the AWV. Provider must be a physician, PA, NP, CNS, or qualified health professional. Payment rate approximately $160-180 in 2024 physician fee schedule.",
+          "pdf_reference": "MLN Matters SE1112 \u2014 Annual Wellness Visit; Medicare Claims Processing Manual, Chapter 12, Section 130; CMS IOM Publication 100-04, Chapter 12"
+        },
+        "bcbs": {
+          "coverage": "not_applicable",
+          "note": "G0438 is a Medicare HCPCS code. BCBS does not process G0438. For BCBS members, use appropriate preventive medicine code (99385-99387 new, 99395-99397 established) per age bracket.",
+          "pdf_reference": "N/A \u2014 BCBS uses CPT preventive medicine codes, not Medicare AWV HCPCS codes"
+        }
+      },
+      "notes": "Initial Annual Wellness Visit \u2014 Medicare only, once per lifetime. Requires HRA, personalized prevention plan, cognitive screening, functional assessment. No patient cost-sharing. Most common error: billing G0438 more than once (use G0439 for all subsequent years). Second most common error: billing to non-Medicare payer."
+    },
+    "G0439": {
+      "description": "Annual wellness visit (AWV), includes a personalized prevention plan of service (PPPS), subsequent visit",
+      "category": "medicare_annual_wellness",
+      "eligibility": {
+        "age_min": 0,
+        "age_max": null,
+        "gender": "any",
+        "patient_status": "established",
+        "frequency": "once_per_12_months",
+        "payer_restriction": "medicare_only",
+        "medicare_eligibility": "Patient must have previously received G0438 (initial AWV). Subsequent AWVs must be at least 12 months after the previous AWV."
+      },
+      "common_modifiers": [],
+      "denial_triggers": [
+        {
+          "trigger": "No prior G0438 on record \u2014 patient has not yet had initial AWV",
+          "severity": "high",
+          "logic_type": "hard_stop",
+          "action": "G0439 requires a prior G0438. If this is the patient's first AWV, bill G0438 instead. Check Medicare claims history for prior G0438."
+        },
+        {
+          "trigger": "Payer is not Medicare \u2014 commercial payers do not recognize G0439",
+          "severity": "high",
+          "logic_type": "hard_stop",
+          "action": "G0439 is a Medicare-only HCPCS code. For non-Medicare patients, use 99395-99397 per age bracket."
+        },
+        {
+          "trigger": "Less than 12 months since prior AWV (G0438 or G0439)",
+          "severity": "high",
+          "logic_type": "hard_stop",
+          "action": "Medicare requires AWVs to be at least 12 months apart. Verify date of prior AWV from FHIR encounter history or Medicare claims. Claim will deny if billed too soon."
+        },
+        {
+          "trigger": "AWV elements not fully documented \u2014 HRA update, medical history review, vitals, cognitive assessment, personalized prevention plan update",
+          "severity": "high",
+          "logic_type": "documentation_gap",
+          "action": "Flag for human review. G0439 requires ALL of: (1) updated HRA, (2) medical/family history update, (3) vitals including BMI, (4) cognitive impairment detection, (5) functional ability and safety update, (6) updated personalized prevention plan. Note: G0439 requires an updated HRA \u2014 the original is not sufficient."
+        },
+        {
+          "trigger": "Billed same day as standard E&M (99201-99215) without modifier 25 on the E&M",
+          "severity": "high",
+          "logic_type": "modifier_required",
+          "action": "If a significant, separately identifiable E&M is performed same day, append modifier 25 to the E&M code (not to G0439)."
+        },
+        {
+          "trigger": "G2211 billed on same claim as G0439",
+          "severity": "high",
+          "logic_type": "hard_stop",
+          "action": "G2211 is not payable with AWV codes G0438 or G0439. Remove G2211 from the claim."
+        }
+      ],
+      "requires_prior_auth": false,
+      "commonly_billed_with": [
+        "96127",
+        "99406",
+        "99408",
+        "G0444",
+        "G0446",
+        "G0447",
+        "G0442",
+        "G0443"
+      ],
+      "payer_evidence": {
+        "medicare": {
+          "coverage": "covered",
+          "cost_share": "no_copay_no_deductible",
+          "note": "G0439 is covered at 100% under Medicare Part B preventive services with no beneficiary cost-sharing. Payment rate approximately $115-135 in 2024 physician fee schedule (lower than G0438 as it is an update, not a full initial assessment). Providers should document that the HRA was updated, not merely reviewed.",
+          "pdf_reference": "MLN Matters SE1112 \u2014 Annual Wellness Visit; Medicare Claims Processing Manual, Chapter 12, Section 130; CMS IOM Publication 100-04, Chapter 12"
+        },
+        "bcbs": {
+          "coverage": "not_applicable",
+          "note": "G0439 is a Medicare HCPCS code. BCBS does not process G0439. For BCBS members, use appropriate CPT preventive medicine code per age bracket.",
+          "pdf_reference": "N/A \u2014 BCBS uses CPT preventive medicine codes, not Medicare AWV HCPCS codes"
+        }
+      },
+      "notes": "Subsequent Annual Wellness Visit \u2014 Medicare only, annually after G0438. Requires updated HRA and updated personalized prevention plan. No patient cost-sharing. Key distinction from G0438: G0439 updates the prevention plan rather than establishing it. Both require cognitive screening."
     },
     "99214": {
       "description": "Office or other outpatient visit, established patient, moderate complexity",
@@ -483,6 +1175,18 @@
         "90471",
         "96127"
       ],
+      "payer_evidence": {
+        "medicare": {
+          "coverage": "covered",
+          "note": "Medicare covers 99214 for established patients. Modifier 25 required when billed same-day as a preventive visit. G2211 may be added when note supports ongoing chronic condition management as primary focus. Medicare audits 99214 frequency \u2014 MDM documentation must support moderate complexity.",
+          "pdf_reference": "Medicare Claims Processing Manual, Chapter 12, Section 30.6.7; CMS 2021 E&M Guideline Updates; MLN Matters MM13473"
+        },
+        "bcbs": {
+          "coverage": "covered",
+          "note": "BCBS covers 99214 for established patients with moderate complexity MDM. Modifier 25 required when same-day preventive visit is billed. G2211 coverage by BCBS varies by plan \u2014 verify current plan bulletin. BCBS audits 99214 upcoding; ensure MDM documentation clearly supports moderate complexity (2+ chronic conditions, Rx drug management, etc.).",
+          "pdf_reference": "BCBS E&M Coding and Documentation Guidelines 2024; BCBS Modifier 25 Policy"
+        }
+      },
       "notes": "Moderate complexity office visit. The 99214 + G2211 combination is the standard billing for established patients with chronic condition management (e.g. T2DM + HTN) where the provider is the continuing focal point."
     }
   }
