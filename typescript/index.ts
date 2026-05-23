@@ -16,8 +16,7 @@ switch (env) {
     allowedHosts.push("ts.fhir-mcp.promptopinion.ai");
     break;
   case "railway":
-    // Allow any host — Railway reverse-proxies with its own domain
-    allowedHosts.push("*");
+    allowedHosts.push("po-community-mcp-production-ffac.up.railway.app");
     break;
   default:
     allowedHosts.push("localhost");
