@@ -15,6 +15,10 @@ switch (env) {
   case "prod":
     allowedHosts.push("ts.fhir-mcp.promptopinion.ai");
     break;
+  case "railway":
+    // Allow any host — Railway reverse-proxies with its own domain
+    allowedHosts.push("*");
+    break;
   default:
     allowedHosts.push("localhost");
     allowedHosts.push("wailsome-timesaving-gauge.ngrok-free.dev");
